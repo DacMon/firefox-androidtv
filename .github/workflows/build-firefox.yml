@@ -8,6 +8,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
     steps:
     - name: Checkout Source Code
@@ -20,14 +25,36 @@ jobs:
         distribution: 'zulu'
         cache: 'gradle'
 
-    - name: Grant Execute Permission for Gradle
-      run: chmod +x gradlew
-
+    # The Firefox app lives in the fenix/ subdirectory of this monorepo,
+    # so all Gradle commands must run from there.
     - name: Compile Firefox APK
-      run: ./gradlew fenix:assembleDebug
+      working-directory: fenix
+      run: |
+        chmod +x gradlew
+        ./gradlew app:assembleDebug --stacktrace
 
     - name: Upload Finished APK
       uses: actions/upload-artifact@v4
       with:
         name: firefox-tv-custom-apk
-        path: app/build/outputs/apk/debug/*.apk
+        path: fenix/app/build/outputs/apk/fenix/debug/*.apk
+
+    - name: Prepare Netlify download page
+      if: env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != ''
+      run: |
+        mkdir -p site/apk
+        cp netlify-site/index.html site/index.html
+        cp fenix/app/build/outputs/apk/fenix/debug/*.apk site/apk/
+        links=""
+        for f in site/apk/*.apk; do
+          name=$(basename "$f")
+          size=$(du -h "$f" | cut -f1)
+          links="$links<li><a href=\"apk/$name\" download>$name</a> <span class=\"size\">($size)</span></li>"
+        done
+        sed -i "s|<!--APK_LINKS-->|$links|" site/index.html
+        sed -i "s|__COMMIT__|${GITHUB_SHA::7}|" site/index.html
+        sed -i "s|__DATE__|$(date -u '+%Y-%m-%d %H:%M UTC')|" site/index.html
+
+    - name: Deploy to Netlify
+      if: env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != ''
+      run: npx --yes netlify-cli deploy --prod --dir site --message "Build ${GITHUB_SHA::7}"
