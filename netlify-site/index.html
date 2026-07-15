@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom Firefox for Android TV</title>
+<style>
+  body {
+    background: #1c1b22;
+    color: #fbfbfe;
+    font-family: system-ui, sans-serif;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  main { max-width: 40rem; width: 100%; }
+  h1 { color: #ff9400; font-size: 1.8rem; }
+  .meta { color: #bfbfc9; font-size: 0.95rem; margin-bottom: 2rem; }
+  ul { list-style: none; padding: 0; }
+  li { margin: 0.8rem 0; }
+  /* Big, focusable links so the page is usable with a TV remote */
+  a {
+    display: inline-block;
+    background: #0060df;
+    color: #fff;
+    text-decoration: none;
+    padding: 0.9rem 1.4rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+  }
+  a:focus, a:hover { background: #0250bb; outline: 3px solid #ff9400; }
+  .size { color: #bfbfc9; margin-left: 0.5rem; }
+  .hint { color: #bfbfc9; font-size: 0.9rem; margin-top: 2.5rem; line-height: 1.5; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Custom Firefox for Android TV</h1>
+  <p class="meta">Build __COMMIT__ &middot; __DATE__</p>
+
+  <p>Pick the APK for your device. Most Android TV boxes and sticks are
+  <strong>arm64-v8a</strong>; older ones are <strong>armeabi-v7a</strong>.</p>
+
+  <ul>
+    <!--APK_LINKS-->
+  </ul>
+
+  <p class="hint">
+    To install on your TV: open the <strong>Downloader</strong> app,
+    enter this site's URL, and pick an APK above. You may need to allow
+    "Install unknown apps" for Downloader in your TV's settings.
+  </p>
+</main>
+</body>
+</html>
